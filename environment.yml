@@ -1,0 +1,11 @@
+name: libra-daq
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - dash
+  - plotly
+  - socket
+  - pip
+  - pip:
+    - dash_daq
