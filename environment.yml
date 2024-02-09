@@ -9,3 +9,4 @@ dependencies:
   - pip
   - pip:
     - dash_daq
+    - dash_bootstrap_components

@@ -1,6 +1,8 @@
 from datetime import datetime
 
 import dash
+import dash_bootstrap_components as dbc
+
 from dash import Dash, dcc, html, Input, Output, State, callback
 import plotly
 import dash_daq as daq
@@ -31,21 +33,17 @@ elif MODE == "PROD":
         turn_controller_to_standby_mode,
     )
 
-app = Dash(__name__)
-app.layout = html.Div(
-    html.Div(
-        [
-            html.H4("Salt temperature feed"),
-            html.Div(id="live-update-text"),
-            dcc.Graph(id="live-update-graph"),
-            html.Div(
-                [
-                    daq.PowerButton(
-                        id="power-button", on=False, label="On/Off", color="#00cc96"
-                    ),
-                    html.Div(id="power-button-result"),
-                ]
-            ),
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+first_row = dbc.Row(
+    [
+        dbc.Col(html.H1("Salt temperature feed"), width={"size": 6, "offset": 3}),
+    ]
+)
+second_row = dbc.Row(
+    [
+        dbc.Col(dcc.Graph(id="live-update-graph"), width=8),
+        dbc.Col(
             daq.Thermometer(
                 id="salt_temp_thermometer",
                 min=0,
@@ -53,33 +51,56 @@ app.layout = html.Div(
                 value=None,
                 showCurrentValue=True,
                 units="C",
-            ),
+            )
+        ),
+        dbc.Col(
+            [
+                daq.PowerButton(
+                    id="power-button", on=False, label="On/Off", color="#00cc96"
+                ),
+                html.Div(id="power-button-result"),
+            ]
+        ),
+    ],
+    align="center",
+)
+
+third_row = dbc.Row(
+    [
+        dbc.Col(
             html.Div(
                 [
+                    html.Div("Write setpoint1 temperature"),
                     html.Div(dcc.Input(id="input-on-submit-set_temp", type="text")),
                     html.Button("Submit", id="submit-val-set_temp", n_clicks=0),
                     html.Div(
                         id="container-button-set_temp",
-                        children="Enter a set temperature and press submit",
                     ),
                 ],
                 style={"margin-top": "15px"},
             ),
+            width=4,
+        ),
+        dbc.Col(
             html.Div(
                 [
+                    html.Div("Write Alarm 2 temperature"),
                     html.Div(
                         dcc.Input(id="input-on-submit-alarm2", type="text"),
                     ),
                     html.Button("Submit", id="submit-val-alarm2", n_clicks=0),
                     html.Div(
                         id="container-button-alarm2",
-                        children="Enter an alarm temp and press submit",
                     ),
                 ],
                 style={"margin-top": "15px"},
             ),
+            width=4,
+        ),
+        dbc.Col(
             html.Div(
                 [
+                    html.Div("Reset the controller"),
                     html.Button(
                         "Reset",
                         id="submit-val-reset",
@@ -87,18 +108,26 @@ app.layout = html.Div(
                     ),
                     html.Div(
                         id="container-button-reset",
-                        children="Click to reset the controller",
                     ),
                 ],
                 style={"margin-top": "15px"},
             ),
-            dcc.Interval(
-                id="interval-component",
-                interval=1 * 1000,  # in milliseconds
-                n_intervals=0,
-            ),
-        ]
-    )
+            width=4,
+        ),
+    ]
+)
+app.layout = dbc.Container(
+    [
+        first_row,
+        second_row,
+        third_row,
+        dcc.Interval(
+            id="interval-component",
+            interval=1 * 1000,  # in milliseconds
+            n_intervals=0,
+        ),
+    ],
+    fluid=True,
 )
 
 
@@ -206,7 +235,9 @@ def update_graph_live(n):
 
 
 @callback(
-    Output("salt_temp_thermometer", "value"), Input("interval-component", "n_intervals")
+    Output("salt_temp_thermometer", "value"),
+    Input("interval-component", "n_intervals"),
+    prevent_initial_call=True,
 )
 def update_thermometer(n):
     return data["Temp"][-1]
