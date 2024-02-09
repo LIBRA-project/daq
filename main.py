@@ -5,16 +5,31 @@ from dash import Dash, dcc, html, Input, Output, State, callback
 import plotly
 import dash_daq as daq
 
-from commands import (
-    read_salt_temperature,
-    write_setpoint1,
-    read_setpoint1,
-    change_alarm2_temperature,
-    read_alarm2_temperature,
-    reset_controller,
-    turn_controller_from_standby_to_run_mode,
-    turn_controller_to_standby_mode,
-)
+
+MODE = "TEST"  # "TEST" or "PROD"
+
+if MODE == "TEST":
+    from commands_test import (
+        read_salt_temperature,
+        write_setpoint1,
+        read_setpoint1,
+        change_alarm2_temperature,
+        read_alarm2_temperature,
+        reset_controller,
+        turn_controller_from_standby_to_run_mode,
+        turn_controller_to_standby_mode,
+    )
+elif MODE == "PROD":
+    from commands import (
+        read_salt_temperature,
+        write_setpoint1,
+        read_setpoint1,
+        change_alarm2_temperature,
+        read_alarm2_temperature,
+        reset_controller,
+        turn_controller_from_standby_to_run_mode,
+        turn_controller_to_standby_mode,
+    )
 
 app = Dash(__name__)
 app.layout = html.Div(
