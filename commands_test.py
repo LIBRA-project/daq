@@ -1,6 +1,7 @@
-SALT_TEMP = 700
+SALT_TEMP = 21
 SETPOINT1 = 700
 ALARM2_TEMP = 750
+MODE = "STANDBY"
 
 
 def read_salt_temperature():
@@ -18,11 +19,19 @@ def read_setpoint1():
 
 
 def turn_controller_to_standby_mode():
-    pass
+    global MODE
+    MODE = "STANDBY"
+    global SALT_TEMP
+    SALT_TEMP = 21
+    return "Controller is on standby"
 
 
 def turn_controller_from_standby_to_run_mode():
-    pass
+    global MODE
+    MODE = "RUNNING"
+    global SALT_TEMP
+    SALT_TEMP = SETPOINT1
+    return "Controller is running"
 
 
 def reset_controller():
