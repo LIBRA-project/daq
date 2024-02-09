@@ -208,7 +208,7 @@ def update_graph_live(n):
 @callback(
     Output("salt_temp_thermometer", "value"), Input("interval-component", "n_intervals")
 )
-def update_graph_live(n):
+def update_thermometer(n):
     return data["Temp"][-1]
 
 
