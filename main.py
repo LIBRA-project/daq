@@ -5,6 +5,8 @@ import dash_bootstrap_components as dbc
 
 from dash import Dash, dcc, html, Input, Output, State, callback
 import plotly
+import plotly.subplots
+
 import dash_daq as daq
 
 
@@ -191,7 +193,8 @@ def update_graph_live(n):
     data["time"].append(time)
 
     # Create the graph with subplots
-    fig = plotly.tools.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
+
+    fig = plotly.subplots.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
     fig["layout"]["margin"] = {"l": 30, "r": 10, "b": 30, "t": 10}
     fig["layout"]["legend"] = {"x": 0, "y": 1, "xanchor": "left"}
 
