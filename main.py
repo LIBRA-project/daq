@@ -180,11 +180,54 @@ def update_output(n_clicks):
 data = {"time": [], "Temp": [], "setpoint": [], "alarm2": []}
 
 
-@callback(
-    Output("live-update-graph", "figure"), Input("interval-component", "n_intervals")
+@app.callback(
+    Output("live-update-graph", "figure"),
+    [Input("interval-component", "n_intervals")],
+    [
+        State("live-update-graph", "figure")
+    ],  # using State here preserves the figure instead of recreating it from scratch
 )
-def update_graph_live(n):
+def update_graph_live(n_intervals, figure):
+    if figure is None:
+        fig = plotly.subplots.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
+        fig["layout"]["margin"] = {"l": 30, "r": 10, "b": 30, "t": 10}
+        fig["layout"]["legend"] = {"x": 0, "y": 1, "xanchor": "left"}
+        fig.append_trace(
+            {
+                "x": data["time"],
+                "y": data["Temp"],
+                "name": "Temperature",
+                "mode": "lines+markers",
+                "type": "scatter",
+            },
+            1,
+            1,
+        )
 
+        fig.append_trace(
+            {
+                "x": data["time"],
+                "y": data["setpoint"],
+                "name": "Setpoint",
+                "mode": "lines+markers",
+                "type": "scatter",
+            },
+            1,
+            1,
+        )
+
+        fig.append_trace(
+            {
+                "x": data["time"],
+                "y": data["alarm2"],
+                "name": "Alarm 2",
+                "mode": "lines+markers",
+                "type": "scatter",
+            },
+            1,
+            1,
+        )
+        return fig
     time = datetime.now()
     salt_temp = read_salt_temperature()
     data["Temp"].append(salt_temp)
@@ -192,49 +235,13 @@ def update_graph_live(n):
     data["alarm2"].append(read_alarm2_temperature())
     data["time"].append(time)
 
-    # Create the graph with subplots
-
-    fig = plotly.subplots.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
-    fig["layout"]["margin"] = {"l": 30, "r": 10, "b": 30, "t": 10}
-    fig["layout"]["legend"] = {"x": 0, "y": 1, "xanchor": "left"}
-
-    fig.append_trace(
-        {
-            "x": data["time"],
-            "y": data["Temp"],
-            "name": "Temperature",
-            "mode": "lines+markers",
-            "type": "scatter",
-        },
-        1,
-        1,
-    )
-
-    fig.append_trace(
-        {
-            "x": data["time"],
-            "y": data["setpoint"],
-            "name": "Setpoint",
-            "mode": "lines+markers",
-            "type": "scatter",
-        },
-        1,
-        1,
-    )
-
-    fig.append_trace(
-        {
-            "x": data["time"],
-            "y": data["alarm2"],
-            "name": "Alarm 2",
-            "mode": "lines+markers",
-            "type": "scatter",
-        },
-        1,
-        1,
-    )
-
-    return fig
+    figure["data"][0]["x"].append(time)
+    figure["data"][0]["y"].append(salt_temp)
+    figure["data"][1]["x"].append(time)
+    figure["data"][1]["y"].append(read_setpoint1())
+    figure["data"][2]["x"].append(time)
+    figure["data"][2]["y"].append(read_alarm2_temperature())
+    return figure
 
 
 @callback(
