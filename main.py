@@ -231,7 +231,8 @@ def update_output(n_clicks, value):
     prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
-
+    if not value:
+        return "Please enter a valid filename"
     df = pd.DataFrame(
         {
             "time": data["time"],
