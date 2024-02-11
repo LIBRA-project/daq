@@ -235,12 +235,12 @@ def update_graph_live(n_intervals, figure):
     data["alarm2"].append(read_alarm2_temperature())
     data["time"].append(time)
 
-    figure["data"][0]["x"].append(time)
-    figure["data"][0]["y"].append(salt_temp)
-    figure["data"][1]["x"].append(time)
-    figure["data"][1]["y"].append(read_setpoint1())
-    figure["data"][2]["x"].append(time)
-    figure["data"][2]["y"].append(read_alarm2_temperature())
+    figure["data"][0]["x"] = data["time"]
+    figure["data"][0]["y"] = data["Temp"]
+    figure["data"][1]["x"] = data["time"]
+    figure["data"][1]["y"] = data["setpoint"]
+    figure["data"][2]["x"] = data["time"]
+    figure["data"][2]["y"] = data["alarm2"]
     return figure
 
 
