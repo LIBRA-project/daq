@@ -315,11 +315,22 @@ def update_graph_live(n_intervals, figure):
 
 @callback(
     Output("salt_temp_thermometer", "value"),
+    Output("salt_temp_thermometer", "color"),
     Input("interval-component", "n_intervals"),
     prevent_initial_call=True,
 )
 def update_thermometer(n):
-    return data["Temp"][-1]
+    value = data["Temp"][-1]
+    setpoint = data["setpoint"][-1]
+
+    if value == setpoint:
+        colour = "#00cc96"
+    elif value > setpoint:
+        colour = "#ff4444"
+    else:
+        colour = "#3399ff"
+
+    return value, colour
 
 
 if __name__ == "__main__":
