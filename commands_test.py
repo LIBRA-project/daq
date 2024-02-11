@@ -49,8 +49,9 @@ def change_alarm2_temperature(temp):
 
 
 def send_custom_command(cmd):
+    print(f"Custom command {cmd} has been sent")
     return send_command(cmd)
 
 
 def send_command(cmd):
-    pass
+    return "Dummy response"
