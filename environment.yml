@@ -6,6 +6,8 @@ dependencies:
   - dash
   - plotly
   - socket
+  - pandas
+  - pyarrow  # just to avoid a deprecation warning
   - pip
   - pip:
     - dash_daq

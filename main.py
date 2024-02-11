@@ -1,4 +1,5 @@
 from datetime import datetime
+import pandas as pd
 
 import dash
 import dash_bootstrap_components as dbc
@@ -22,6 +23,7 @@ if MODE == "TEST":
         reset_controller,
         turn_controller_from_standby_to_run_mode,
         turn_controller_to_standby_mode,
+        send_custom_command,
     )
 elif MODE == "PROD":
     from commands import (
@@ -33,9 +35,10 @@ elif MODE == "PROD":
         reset_controller,
         turn_controller_from_standby_to_run_mode,
         turn_controller_to_standby_mode,
+        send_custom_command,
     )
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY])
 
 first_row = dbc.Row(
     [
@@ -73,37 +76,37 @@ third_row = dbc.Row(
             html.Div(
                 [
                     html.Div("Write setpoint1 temperature"),
-                    html.Div(dcc.Input(id="input-on-submit-set_temp", type="text")),
-                    html.Button("Submit", id="submit-val-set_temp", n_clicks=0),
+                    html.Div(dbc.Input(id="input-on-submit-set_temp", type="text")),
+                    dbc.Button("Submit", id="submit-val-set_temp", n_clicks=0),
                     html.Div(
                         id="container-button-set_temp",
                     ),
                 ],
                 style={"margin-top": "15px"},
             ),
-            width=4,
+            width=1,
         ),
         dbc.Col(
             html.Div(
                 [
                     html.Div("Write Alarm 2 temperature"),
                     html.Div(
-                        dcc.Input(id="input-on-submit-alarm2", type="text"),
+                        dbc.Input(id="input-on-submit-alarm2", type="text"),
                     ),
-                    html.Button("Submit", id="submit-val-alarm2", n_clicks=0),
+                    dbc.Button("Submit", id="submit-val-alarm2", n_clicks=0),
                     html.Div(
                         id="container-button-alarm2",
                     ),
                 ],
                 style={"margin-top": "15px"},
             ),
-            width=4,
+            width=1,
         ),
         dbc.Col(
             html.Div(
                 [
                     html.Div("Reset the controller"),
-                    html.Button(
+                    dbc.Button(
                         "Reset",
                         id="submit-val-reset",
                         n_clicks=0,
@@ -114,7 +117,41 @@ third_row = dbc.Row(
                 ],
                 style={"margin-top": "15px"},
             ),
-            width=4,
+            width=1,
+        ),
+        dbc.Col(
+            html.Div(
+                [
+                    html.Div("Write custom command"),
+                    html.Div(dbc.Input(id="input-on-submit-custom", type="text")),
+                    dbc.Button("Submit", id="submit-val-custom", n_clicks=0),
+                    html.Div(
+                        id="container-button-custom",
+                    ),
+                ],
+                style={"margin-top": "15px"},
+            ),
+            width=1,
+        ),
+        dbc.Col(
+            html.Div(
+                [
+                    html.Div("Export data to csv"),
+                    html.Div(
+                        dbc.Input(
+                            id="input-on-submit-export",
+                            type="text",
+                            placeholder="filename.csv",
+                        )
+                    ),
+                    dbc.Button("Export", id="submit-val-export", n_clicks=0),
+                    html.Div(
+                        id="container-button-export",
+                    ),
+                ],
+                style={"margin-top": "15px"},
+            ),
+            width=1,
         ),
     ]
 )
@@ -175,6 +212,37 @@ def update_output(n_clicks, value):
 def update_output(n_clicks):
     reset_controller()
     return f" \n Controller last reset: {datetime.now()}"
+
+
+@callback(
+    Output("container-button-custom", "children"),
+    Input("submit-val-custom", "n_clicks"),
+    State("input-on-submit-custom", "value"),
+    prevent_initial_call=True,
+)
+def update_output(n_clicks, value):
+    return send_custom_command(value)
+
+
+@callback(
+    Output("container-button-export", "children"),
+    Input("submit-val-export", "n_clicks"),
+    State("input-on-submit-export", "value"),
+    prevent_initial_call=True,
+)
+def update_output(n_clicks, value):
+
+    df = pd.DataFrame(
+        {
+            "time": data["time"],
+            "Temp": data["Temp"],
+            "setpoint": data["setpoint"],
+            "alarm2": data["alarm2"],
+        }
+    )
+    df.to_csv(value, index=False)
+
+    return f" \n Data exported to {value}"
 
 
 data = {"time": [], "Temp": [], "setpoint": [], "alarm2": []}
