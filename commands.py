@@ -7,7 +7,7 @@ REC_CHAR = "*"
 EOL = "\r"
 
 
-def read_salt_temperature():
+def read_temperature():
     data = send_command(HOST, PORT, "X01")
     data = data.replace("b'X01", "")
     data = data.replace(r".\r'", "")

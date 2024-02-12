@@ -15,7 +15,7 @@ MODE = "TEST"  # "TEST" or "PROD"
 
 if MODE == "TEST":
     from commands_test import (
-        read_salt_temperature,
+        read_temperature,
         write_setpoint1,
         read_setpoint1,
         change_alarm2_temperature,
@@ -27,7 +27,7 @@ if MODE == "TEST":
     )
 elif MODE == "PROD":
     from commands import (
-        read_salt_temperature,
+        read_temperature,
         write_setpoint1,
         read_setpoint1,
         change_alarm2_temperature,
@@ -64,7 +64,11 @@ second_row = dbc.Row(
         dbc.Col(
             [
                 daq.PowerButton(
-                    id="power-button", on=False, label="On/Off", color="#00cc96"
+                    id="power-button",
+                    on=False,
+                    label="On/Off",
+                    color="#00cc96",
+                    size=100,
                 ),
                 html.Div(id="power-button-result"),
             ]
@@ -286,20 +290,13 @@ def update_output(n_clicks, n_intervals, value):
         filename = value
         if not value or not value.endswith(".csv"):
             return "Please enter a valid filename"
-    df = pd.DataFrame(
-        {
-            "time": data["time"],
-            "Temp": data["Temp"],
-            "setpoint": data["setpoint"],
-            "alarm2": data["alarm2"],
-        }
-    )
+    df = pd.DataFrame(data)
     df.to_csv(filename, index=False, mode="w+")
 
     return f" \n Data exported to {filename}"
 
 
-data = {"time": [], "Temp": [], "setpoint": [], "alarm2": []}
+data = {"time": [], "temp": [], "setpoint1": [], "alarm2": []}
 
 
 @app.callback(
@@ -317,7 +314,7 @@ def update_graph_live(n_intervals, figure):
         fig.append_trace(
             {
                 "x": data["time"],
-                "y": data["Temp"],
+                "y": data["temp"],
                 "name": "Temperature",
                 "mode": "lines+markers",
                 "type": "scatter",
@@ -329,8 +326,8 @@ def update_graph_live(n_intervals, figure):
         fig.append_trace(
             {
                 "x": data["time"],
-                "y": data["setpoint"],
-                "name": "Setpoint",
+                "y": data["setpoint1"],
+                "name": "Setpoint 1",
                 "mode": "lines+markers",
                 "type": "scatter",
             },
@@ -351,16 +348,16 @@ def update_graph_live(n_intervals, figure):
         )
         return fig
     time = datetime.now()
-    salt_temp = read_salt_temperature()
-    data["Temp"].append(salt_temp)
-    data["setpoint"].append(read_setpoint1())
+    salt_temp = read_temperature()
+    data["temp"].append(salt_temp)
+    data["setpoint1"].append(read_setpoint1())
     data["alarm2"].append(read_alarm2_temperature())
     data["time"].append(time)
 
     figure["data"][0]["x"] = data["time"]
-    figure["data"][0]["y"] = data["Temp"]
+    figure["data"][0]["y"] = data["temp"]
     figure["data"][1]["x"] = data["time"]
-    figure["data"][1]["y"] = data["setpoint"]
+    figure["data"][1]["y"] = data["setpoint1"]
     figure["data"][2]["x"] = data["time"]
     figure["data"][2]["y"] = data["alarm2"]
     return figure
@@ -373,8 +370,8 @@ def update_graph_live(n_intervals, figure):
     prevent_initial_call=True,
 )
 def update_thermometer(n):
-    value = data["Temp"][-1]
-    setpoint = data["setpoint"][-1]
+    value = data["temp"][-1]
+    setpoint = data["setpoint1"][-1]
 
     if value == setpoint:
         colour = "#00cc96"

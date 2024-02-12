@@ -4,7 +4,7 @@ ALARM2_TEMP = 750
 MODE = "STANDBY"
 
 
-def read_salt_temperature():
+def read_temperature():
     return float(SALT_TEMP)
 
 
