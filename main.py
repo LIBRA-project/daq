@@ -40,6 +40,7 @@ elif MODE == "PROD":
 
 
 DEFAULT_EXPORT_RATE = 30 * 60 * 1000  # in miliseconds
+DEFAULT_READING_RATE = 1 * 1000  # in miliseconds
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY])
 
@@ -145,6 +146,21 @@ fourth_row = dbc.Row(
         dbc.Col(
             html.Div(
                 [
+                    html.Div("Reading rate (seconds)"),
+                    html.Div(dbc.Input(id="input-on-submit-reading_rate", type="text")),
+                    dbc.Button("Submit", id="submit-val-reading_rate", n_clicks=0),
+                    html.Div(
+                        id="container-button-reading_rate",
+                        children=f"\n Reading rate set to {DEFAULT_READING_RATE/1000} seconds",
+                    ),
+                ],
+                style={"margin-top": "15px"},
+            ),
+            width=1,
+        ),
+        dbc.Col(
+            html.Div(
+                [
                     html.Div("Export rate (seconds)"),
                     html.Div(dbc.Input(id="input-on-submit-export_rate", type="text")),
                     dbc.Button("Submit", id="submit-val-export_rate", n_clicks=0),
@@ -187,7 +203,7 @@ app.layout = dbc.Container(
         fourth_row,
         dcc.Interval(
             id="interval-component",
-            interval=1 * 1000,  # in milliseconds
+            interval=DEFAULT_READING_RATE,  # in milliseconds
             n_intervals=0,
         ),
         dcc.Interval(
@@ -266,6 +282,20 @@ def update_output(n_clicks, value):
 def update_output(n_clicks, value):
     new_interval = float(value) * 1000  # seconds to milliseconds
     return new_interval, f" \n Export rate set to {new_interval/1000} seconds"
+
+
+@callback(
+    [
+        Output("interval-component", "interval"),
+        Output("container-button-reading_rate", "children"),
+    ],
+    Input("submit-val-reading_rate", "n_clicks"),
+    State("input-on-submit-reading_rate", "value"),
+    prevent_initial_call=True,
+)
+def update_output(n_clicks, value):
+    new_interval = float(value) * 1000  # seconds to milliseconds
+    return new_interval, f" \n Reading rate set to {new_interval/1000} seconds"
 
 
 @callback(
