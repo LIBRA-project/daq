@@ -33,12 +33,20 @@ def read_setpoint1():
     return setpoint_temp
 
 
+# TODO test this function in production
 def turn_controller_to_standby_mode():
-    pass
+    cmd = "D03"
+    data = send_command(HOST, PORT, cmd)
+    print("Received", data)
+    return data
 
 
+# TODO test this function in production
 def turn_controller_from_standby_to_run_mode():
-    pass
+    cmd = "E03"
+    data = send_command(HOST, PORT, cmd)
+    print("Received", data)
+    return data
 
 
 def reset_controller():

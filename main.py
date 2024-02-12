@@ -206,7 +206,7 @@ def update_output(on):
         commands.turn_controller_to_standby_mode()
         mode = "on standby"
 
-    return f"The controller is {mode} (not really cause not connected to anything)."
+    return f"The controller is {mode}."
 
 
 @callback(
