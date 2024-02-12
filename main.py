@@ -14,29 +14,10 @@ import dash_daq as daq
 MODE = "TEST"  # "TEST" or "PROD"
 
 if MODE == "TEST":
-    from commands_test import (
-        read_temperature,
-        write_setpoint1,
-        read_setpoint1,
-        change_alarm2_temperature,
-        read_alarm2_temperature,
-        reset_controller,
-        turn_controller_from_standby_to_run_mode,
-        turn_controller_to_standby_mode,
-        send_custom_command,
-    )
+    import commands_test as commands
 elif MODE == "PROD":
-    from commands import (
-        read_temperature,
-        write_setpoint1,
-        read_setpoint1,
-        change_alarm2_temperature,
-        read_alarm2_temperature,
-        reset_controller,
-        turn_controller_from_standby_to_run_mode,
-        turn_controller_to_standby_mode,
-        send_custom_command,
-    )
+
+    import commands as commands
 
 
 DEFAULT_EXPORT_RATE = 30 * 60 * 1000  # in miliseconds
@@ -219,10 +200,10 @@ app.layout = dbc.Container(
 @callback(Output("power-button-result", "children"), Input("power-button", "on"))
 def update_output(on):
     if on:
-        turn_controller_from_standby_to_run_mode()
+        commands.turn_controller_from_standby_to_run_mode()
         mode = "running"
     else:
-        turn_controller_to_standby_mode()
+        commands.turn_controller_to_standby_mode()
         mode = "on standby"
 
     return f"The controller is {mode} (not really cause not connected to anything)."
@@ -235,7 +216,7 @@ def update_output(on):
     prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
-    write_setpoint1(int(value))
+    commands.write_setpoint1(int(value))
     return f" \n Setpoint temperature {int(value)} has been set"
 
 
@@ -246,7 +227,7 @@ def update_output(n_clicks, value):
     prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
-    change_alarm2_temperature(int(value))
+    commands.change_alarm2_temperature(int(value))
     return f" \n Alarm temperature {int(value)} has been set"
 
 
@@ -256,7 +237,7 @@ def update_output(n_clicks, value):
     prevent_initial_call=True,
 )
 def update_output(n_clicks):
-    reset_controller()
+    commands.reset_controller()
     return f" \n Controller last reset: {datetime.now()}"
 
 
@@ -267,7 +248,7 @@ def update_output(n_clicks):
     prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
-    return send_custom_command(value)
+    return commands.send_custom_command(value)
 
 
 @callback(
@@ -375,10 +356,10 @@ def update_graph_live(n_intervals, figure):
         )
         return fig
     time = datetime.now()
-    salt_temp = read_temperature()
+    salt_temp = commands.read_temperature()
     data["temp"].append(salt_temp)
-    data["setpoint1"].append(read_setpoint1())
-    data["alarm2"].append(read_alarm2_temperature())
+    data["setpoint1"].append(commands.read_setpoint1())
+    data["alarm2"].append(commands.read_alarm2_temperature())
     data["time"].append(time)
 
     figure["data"][0]["x"] = data["time"]
