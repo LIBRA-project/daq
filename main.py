@@ -11,7 +11,7 @@ import plotly.subplots
 import dash_daq as daq
 
 
-MODE = "TEST"  # "TEST" or "PROD"
+MODE = "PROD"  # "TEST" or "PROD"
 
 if MODE == "TEST":
     import commands_test as commands
@@ -21,7 +21,7 @@ elif MODE == "PROD":
 
 
 DEFAULT_EXPORT_RATE = 30 * 60 * 1000  # in miliseconds
-DEFAULT_READING_RATE = 1 * 1000  # in miliseconds
+DEFAULT_READING_RATE = 5 * 1000  # in miliseconds
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY])
 
@@ -318,7 +318,6 @@ def update_graph_live(n_intervals, figure):
     if figure is None:
         fig = plotly.subplots.make_subplots(rows=1, cols=1, vertical_spacing=0.2)
         fig["layout"]["margin"] = {"l": 30, "r": 10, "b": 30, "t": 10}
-        fig["layout"]["legend"] = {"x": 0, "y": 1, "xanchor": "left"}
         fig.append_trace(
             {
                 "x": data["time"],
