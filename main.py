@@ -71,7 +71,21 @@ second_row = dbc.Row(
                     size=100,
                 ),
                 html.Div(id="power-button-result"),
-            ]
+                html.Div(
+                    [
+                        dbc.Button(
+                            "Reset",
+                            id="submit-val-reset",
+                            n_clicks=0,
+                        ),
+                        html.Div(
+                            id="container-button-reset",
+                        ),
+                    ],
+                    style={"margin-top": "15px"},
+                ),
+            ],
+            style={"textAlign": "center"},
         ),
     ],
     align="center",
@@ -82,7 +96,7 @@ third_row = dbc.Row(
         dbc.Col(
             html.Div(
                 [
-                    html.Div("Write setpoint1 temperature"),
+                    html.Div("Write Setpoint 1"),
                     html.Div(dbc.Input(id="input-on-submit-set_temp", type="text")),
                     dbc.Button("Submit", id="submit-val-set_temp", n_clicks=0),
                     html.Div(
@@ -96,30 +110,13 @@ third_row = dbc.Row(
         dbc.Col(
             html.Div(
                 [
-                    html.Div("Write Alarm 2 temperature"),
+                    html.Div("Write Alarm 2"),
                     html.Div(
                         dbc.Input(id="input-on-submit-alarm2", type="text"),
                     ),
                     dbc.Button("Submit", id="submit-val-alarm2", n_clicks=0),
                     html.Div(
                         id="container-button-alarm2",
-                    ),
-                ],
-                style={"margin-top": "15px"},
-            ),
-            width=1,
-        ),
-        dbc.Col(
-            html.Div(
-                [
-                    html.Div("Reset the controller"),
-                    dbc.Button(
-                        "Reset",
-                        id="submit-val-reset",
-                        n_clicks=0,
-                    ),
-                    html.Div(
-                        id="container-button-reset",
                     ),
                 ],
                 style={"margin-top": "15px"},
