@@ -357,9 +357,12 @@ def update_graph_live(n_intervals, figure):
         return fig
     time = datetime.now()
     salt_temp = commands.read_temperature()
+    setpoint1 = commands.read_setpoint1()
+    alarm2 = commands.read_alarm2_temperature()
+
     data["temp"].append(salt_temp)
-    data["setpoint1"].append(commands.read_setpoint1())
-    data["alarm2"].append(commands.read_alarm2_temperature())
+    data["setpoint1"].append(setpoint1)
+    data["alarm2"].append(alarm2)
     data["time"].append(time)
 
     figure["data"][0]["x"] = data["time"]
