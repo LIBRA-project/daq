@@ -39,8 +39,9 @@ second_row = dbc.Row(
                 min=0,
                 max=1000,
                 value=None,
+                label="Salt temperature",
                 showCurrentValue=True,
-                units="C",
+                units="\N{DEGREE SIGN}C",
             )
         ),
         dbc.Col(
@@ -377,6 +378,8 @@ def update_graph_live(n_intervals, figure):
     prevent_initial_call=True,
 )
 def update_thermometer(n):
+    if not data["temp"]:
+        return None, "#00cc96"
     value = data["temp"][-1]
     setpoint = data["setpoint1"][-1]
 
