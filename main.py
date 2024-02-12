@@ -4,7 +4,7 @@ import pandas as pd
 import dash
 import dash_bootstrap_components as dbc
 
-from dash import Dash, dcc, html, Input, Output, State, callback
+from dash import Dash, dcc, html, Input, Output, State, callback, ctx
 import plotly
 import plotly.subplots
 
@@ -37,6 +37,9 @@ elif MODE == "PROD":
         turn_controller_to_standby_mode,
         send_custom_command,
     )
+
+
+DEFAULT_EXPORT_RATE = 30 * 60 * 1000  # in miliseconds
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MINTY])
 
@@ -133,6 +136,26 @@ third_row = dbc.Row(
             ),
             width=1,
         ),
+    ]
+)
+
+fourth_row = dbc.Row(
+    [
+        dbc.Col(
+            html.Div(
+                [
+                    html.Div("Export rate (seconds)"),
+                    html.Div(dbc.Input(id="input-on-submit-export_rate", type="text")),
+                    dbc.Button("Submit", id="submit-val-export_rate", n_clicks=0),
+                    html.Div(
+                        id="container-button-export_rate",
+                        children=f"\n Export rate set to {DEFAULT_EXPORT_RATE/1000} seconds",
+                    ),
+                ],
+                style={"margin-top": "15px"},
+            ),
+            width=1,
+        ),
         dbc.Col(
             html.Div(
                 [
@@ -160,9 +183,15 @@ app.layout = dbc.Container(
         first_row,
         second_row,
         third_row,
+        fourth_row,
         dcc.Interval(
             id="interval-component",
             interval=1 * 1000,  # in milliseconds
+            n_intervals=0,
+        ),
+        dcc.Interval(
+            id="interval-component_export",
+            interval=DEFAULT_EXPORT_RATE,  # in milliseconds
             n_intervals=0,
         ),
     ],
@@ -225,14 +254,38 @@ def update_output(n_clicks, value):
 
 
 @callback(
-    Output("container-button-export", "children"),
-    Input("submit-val-export", "n_clicks"),
-    State("input-on-submit-export", "value"),
+    [
+        Output("interval-component_export", "interval"),
+        Output("container-button-export_rate", "children"),
+    ],
+    Input("submit-val-export_rate", "n_clicks"),
+    State("input-on-submit-export_rate", "value"),
     prevent_initial_call=True,
 )
 def update_output(n_clicks, value):
-    if not value:
-        return "Please enter a valid filename"
+    new_interval = float(value) * 1000  # seconds to milliseconds
+    return new_interval, f" \n Export rate set to {new_interval/1000} seconds"
+
+
+@callback(
+    Output("container-button-export", "children"),
+    [
+        Input("submit-val-export", "n_clicks"),
+        Input("interval-component_export", "n_intervals"),
+    ],
+    State("input-on-submit-export", "value"),
+    prevent_initial_call=True,
+)
+def update_output(n_clicks, n_intervals, value):
+    triggered_id = (
+        ctx.triggered_id
+    )  # the the id of the input that triggered the callback
+    if triggered_id == "interval-component_export":
+        filename = f"exported_data_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+    else:
+        filename = value
+        if not value or not value.endswith(".csv"):
+            return "Please enter a valid filename"
     df = pd.DataFrame(
         {
             "time": data["time"],
@@ -241,9 +294,9 @@ def update_output(n_clicks, value):
             "alarm2": data["alarm2"],
         }
     )
-    df.to_csv(value, index=False)
+    df.to_csv(filename, index=False, mode="w+")
 
-    return f" \n Data exported to {value}"
+    return f" \n Data exported to {filename}"
 
 
 data = {"time": [], "Temp": [], "setpoint": [], "alarm2": []}
