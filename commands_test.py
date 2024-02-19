@@ -5,6 +5,11 @@ MODE = "STANDBY"
 
 
 def read_temperature():
+    global SALT_TEMP
+    if MODE == "RUNNING":
+        SALT_TEMP = SETPOINT1
+    else:
+        SALT_TEMP = 21
     return float(SALT_TEMP)
 
 
